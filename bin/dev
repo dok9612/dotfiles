@@ -1,13 +1,42 @@
 #!/usr/bin/env python3
 import sys
 import subprocess
+import os
 
 args = sys.argv
+gh_token = os.environ.get("GITHUB_TOKEN")
+
+def run_command(cmd_list):
+    try:
+        subprocess.run(cmd_list, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error as {e}")
+        sys.exit(1)
+
+if len(args) < 2:
+    print("Usage: dev <command> [args...]")
 
 if args[1] == "ghdl":
-    command_list = ["git","clone",args[2]]
-    subprocess.run(command_list)
+    url = args[2]
 
-if args[1] == "ping":
-    command_list = [args[1], args[2]]
-    subprocess.run(command_list)
+    if "blob" in url:
+        raw_url = url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/")
+        filename = raw_url.split("/")[-1]
+        cmd_list = ["curl", "-H",f"Authorization: token {gh_token}", "-L", raw_url, "-o", filename]
+        run_command(cmd_list)
+        sys.exit(1)
+elif args[1] == "ping":
+    if len(args) <= 2:
+        print("Usage: dev ping <url> <freq>")
+        sys.exit(1)
+    if len(args) == 3:
+        ping_url = args[2]
+        print(f"pinging {ping_url} 5 (default) times...")
+        cmd_list = ["ping", "-c", "5", ping_url]
+        run_command(cmd_list)
+    elif len(args) == 4:
+        ping_url = args[2]
+        freq = args[3]
+        cmd_list = ["ping", "-c", freq, ping_url]
+        print(f"pinging {ping_url} {freq} times...")
+        run_command(cmd_list)
