@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+import sys
+import subprocess
+
+args = sys.argv
+
+if args[1] == "ghdl":
+    command_list = ["git","clone",args[2]]
+    subprocess.run(command_list)
+
+if args[1] == "ping":
+    command_list = [args[1], args[2]]
+    subprocess.run(command_list)
