@@ -1,0 +1,32 @@
+name: Build and Push Docker Image
+
+# Trigger: Run this every time you push to the 'main' branch
+on:
+  push:
+    branches: [ "main" ]
+  # Allows you to run this manually from the Actions tab for testing
+  workflow_dispatch:
+
+env:
+  # CHANGE THIS to your actual Docker Hub repo name (username/repo)
+  IMAGE_NAME: dok9612/dev-environment 
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:latest
